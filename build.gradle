@@ -20,7 +20,13 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.apache.camel.springboot:camel-spring-boot-starter:3.4.3'
+
+	implementation 'org.apache.camel:camel-core:3.4.3'
+	implementation 'org.apache.camel.springboot:camel-spring-starter:3.4.3'
+	implementation 'org.apache.camel:camel-jackson:3.4.3'
+	implementation 'org.apache.camel:camel-http:3.4.3'
+	implementation 'org.apache.camel.springboot:camel-weather-starter:3.4.3'
+	
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {

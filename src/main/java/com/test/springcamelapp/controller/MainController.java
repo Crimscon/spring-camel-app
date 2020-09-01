@@ -2,7 +2,6 @@ package com.test.springcamelapp.controller;
 
 import com.test.springcamelapp.model.Lang;
 import com.test.springcamelapp.model.MessageA;
-import com.test.springcamelapp.model.strategy.OpenWeatherStrategy;
 import com.test.springcamelapp.service.WeatherService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
