@@ -9,11 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.camel.CamelContext;
-import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.apache.camel.RoutesBuilder;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.support.DefaultMessage;
+import org.apache.camel.ProducerTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -51,27 +48,12 @@ public class OpenWeatherStrategy implements AbstractStrategy {
     }
 
     @Override
-    public RoutesBuilder getRoute(CamelContext camel, MessageA messageA) {
-        return new RouteBuilder() {
-            @Override
-            public void configure() {
-                from(getCompleteURL())
-                        .routeId(getName())
-                        .process(exchange -> {
-                            Message in = exchange.getIn();
-                            Object body = in.getBody();
-
-                            DefaultMessage message = new DefaultMessage(exchange);
-                            message.setBody(createMessageB(body, messageA));
-                        })
-                        .setHeader(Exchange.HTTP_METHOD, constant("POST"))
-                        .setBody(body())
-                        .to("http://localhost:8081/messageB");
-            }
-        };
+    public MessageB getMessageB(ProducerTemplate template, CamelContext camel, MessageA messageA) throws JsonProcessingException {
+        Message message = template.request(getCompleteURL(), camel.getProcessor(getName())).getMessage();
+        return createMessageB(message.getBody(String.class), messageA);
     }
 
-    private Object createMessageB(Object body, MessageA messageA) throws JsonProcessingException {
+    private MessageB createMessageB(Object body, MessageA messageA) throws JsonProcessingException {
         MessageB messageB = new MessageB();
         messageB.setMessage(messageA.getMessage());
         messageB.setDateTime(LocalDateTime.now());
@@ -80,7 +62,7 @@ public class OpenWeatherStrategy implements AbstractStrategy {
         JsonNode actualObj = mapper.readTree(body.toString());
 
         String stringTemperature = actualObj.get("main").get("temp").toString();
-        Double temperature = 273.15 - Double.parseDouble(stringTemperature);
+        double temperature = Double.parseDouble(stringTemperature) - 273.15;
         messageB.setTemperature((int) Math.floor(temperature));
 
         return messageB;

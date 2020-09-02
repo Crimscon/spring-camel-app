@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class MessageB {
-    private String message;
+    private String message = "";
     private LocalDateTime dateTime;
     private Integer temperature;
 }

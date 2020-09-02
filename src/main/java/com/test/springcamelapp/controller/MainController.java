@@ -2,6 +2,7 @@ package com.test.springcamelapp.controller;
 
 import com.test.springcamelapp.model.Lang;
 import com.test.springcamelapp.model.MessageA;
+import com.test.springcamelapp.model.MessageB;
 import com.test.springcamelapp.service.WeatherService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +20,10 @@ public class MainController {
     }
 
     @PostMapping("/weather")
-    public ResponseEntity<HttpStatus> weather(@RequestBody MessageA message) throws Exception {
-        if (message.getLang() == Lang.RU)
-            weatherService.getWeather(message);
-
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<MessageB> weather(@RequestBody MessageA message) throws Exception {
+        if (message.getLang() == Lang.RU && !message.getMessage().isEmpty())
+            return new ResponseEntity<>(weatherService.getWeather(message), HttpStatus.OK);
+        else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
 }
