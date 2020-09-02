@@ -27,6 +27,7 @@ public class WeatherService {
         camel.start();
 
         MessageB messageB = strategy.getMessageB(template, camel, messageA);
+        template.send("http://localhost:8079/getMessage", strategy.getMessage(template, camel).getExchange());
 
         camel.stop();
 

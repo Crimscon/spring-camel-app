@@ -49,8 +49,13 @@ public class OpenWeatherStrategy implements AbstractStrategy {
 
     @Override
     public MessageB getMessageB(ProducerTemplate template, CamelContext camel, MessageA messageA) throws JsonProcessingException {
-        Message message = template.request(getCompleteURL(), camel.getProcessor(getName())).getMessage();
+        Message message = getMessage(template, camel);
         return createMessageB(message.getBody(String.class), messageA);
+    }
+
+    @Override
+    public Message getMessage(ProducerTemplate template, CamelContext camel) {
+        return template.request(getCompleteURL(), camel.getProcessor(getName())).getMessage();
     }
 
     private MessageB createMessageB(Object body, MessageA messageA) throws JsonProcessingException {
