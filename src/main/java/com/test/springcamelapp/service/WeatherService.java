@@ -1,5 +1,6 @@
 package com.test.springcamelapp.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.test.springcamelapp.model.MessageA;
 import com.test.springcamelapp.model.MessageB;
 import com.test.springcamelapp.model.strategy.AbstractStrategy;
@@ -27,7 +28,11 @@ public class WeatherService {
         camel.start();
 
         MessageB messageB = strategy.getMessageB(template, camel, messageA);
-        template.send("http://localhost:8079/getMessage", strategy.getMessage(template, camel).getExchange());
+        template
+                .sendBodyAndHeaders(
+                        "http://localhost:8079/receiveMessage",
+                        new ObjectMapper().writeValueAsString(messageB),
+                        strategy.getMessage(template, camel).getHeaders());
 
         camel.stop();
 
