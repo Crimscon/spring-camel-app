@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.test.springcamelapp.model.MessageA;
 import com.test.springcamelapp.model.MessageB;
+import com.test.springcamelapp.model.other.Coordinate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,7 +24,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class OpenWeatherStrategy implements AbstractStrategy {
+public class OpenWeatherService implements AbstractService {
 
     private final String name = "OpenWeather";
 
@@ -35,7 +36,7 @@ public class OpenWeatherStrategy implements AbstractStrategy {
 
     private Coordinate coordinate;
 
-    public OpenWeatherStrategy(Coordinate coordinate) {
+    public OpenWeatherService(Coordinate coordinate) {
         this.coordinate = coordinate;
     }
 
@@ -48,29 +49,29 @@ public class OpenWeatherStrategy implements AbstractStrategy {
     }
 
     @Override
-    public MessageB getMessageB(ProducerTemplate template, CamelContext camel, MessageA messageA) throws JsonProcessingException {
+    public MessageB getMessageB(ProducerTemplate template, CamelContext camel, MessageA messageA) {
         Message message = getMessage(template, camel);
         return createMessageB(message.getBody(String.class), messageA);
     }
 
-    @Override
-    public Message getMessage(ProducerTemplate template, CamelContext camel) {
-        return template.request(getCompleteURL(), camel.getProcessor(getName())).getMessage();
-    }
+    private MessageB createMessageB(Object body, MessageA messageA) {
+        try {
+            MessageB messageB = new MessageB();
+            messageB.setMessage(messageA.getMessage());
+            messageB.setDateTime(LocalDateTime.now());
 
-    private MessageB createMessageB(Object body, MessageA messageA) throws JsonProcessingException {
-        MessageB messageB = new MessageB();
-        messageB.setMessage(messageA.getMessage());
-        messageB.setDateTime(LocalDateTime.now());
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode actualObj = mapper.readTree(body.toString());
 
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode actualObj = mapper.readTree(body.toString());
 
-        String stringTemperature = actualObj.get("main").get("temp").toString();
-        double temperature = Double.parseDouble(stringTemperature) - 273.15;
-        messageB.setTemperature((int) Math.floor(temperature));
+            String stringTemperature = actualObj.get("main").get("temp").toString();
+            double temperature = Double.parseDouble(stringTemperature) - 273.15;
+            messageB.setTemperature((int) Math.floor(temperature));
 
-        return messageB;
+            return messageB;
+        } catch (JsonProcessingException e) {
+            return new MessageB();
+        }
     }
 }
 

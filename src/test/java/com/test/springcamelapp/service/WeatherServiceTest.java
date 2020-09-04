@@ -3,11 +3,11 @@ package com.test.springcamelapp.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.test.springcamelapp.model.Lang;
+import com.test.springcamelapp.model.other.Lang;
 import com.test.springcamelapp.model.MessageA;
 import com.test.springcamelapp.model.MessageB;
-import com.test.springcamelapp.model.strategy.AbstractStrategy;
-import com.test.springcamelapp.model.strategy.Coordinate;
+import com.test.springcamelapp.model.strategy.AbstractService;
+import com.test.springcamelapp.model.other.Coordinate;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.junit.Assert;
@@ -30,7 +30,7 @@ public class WeatherServiceTest {
 
     private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
     @MockBean
-    private AbstractStrategy strategy;
+    private AbstractService strategy;
     @MockBean
     private CamelContext camel;
     @MockBean

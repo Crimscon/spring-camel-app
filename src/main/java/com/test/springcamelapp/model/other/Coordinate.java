@@ -1,4 +1,4 @@
-package com.test.springcamelapp.model.strategy;
+package com.test.springcamelapp.model.other;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
