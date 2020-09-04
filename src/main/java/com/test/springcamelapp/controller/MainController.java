@@ -1,6 +1,7 @@
 package com.test.springcamelapp.controller;
 
-import com.test.springcamelapp.model.Lang;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.test.springcamelapp.model.other.Lang;
 import com.test.springcamelapp.model.MessageA;
 import com.test.springcamelapp.model.MessageB;
 import com.test.springcamelapp.service.WeatherService;
@@ -20,9 +21,9 @@ public class MainController {
     }
 
     @PostMapping("/weather")
-    public ResponseEntity<MessageB> weather(@RequestBody MessageA message) throws Exception {
+    public ResponseEntity<MessageB> weather(@RequestBody MessageA message) throws JsonProcessingException {
         if (message.getLang() == Lang.RU && !message.getMessage().isEmpty())
-            return new ResponseEntity<>(weatherService.getWeather(message), HttpStatus.OK);
+            return weatherService.getWeather(message);
         else return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 

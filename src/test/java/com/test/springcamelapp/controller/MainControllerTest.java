@@ -1,8 +1,8 @@
 package com.test.springcamelapp.controller;
 
-import com.test.springcamelapp.model.Lang;
 import com.test.springcamelapp.model.MessageA;
 import com.test.springcamelapp.model.MessageB;
+import com.test.springcamelapp.model.other.Lang;
 import com.test.springcamelapp.service.WeatherService;
 import com.test.springcamelapp.service.WeatherServiceTest;
 import org.apache.camel.ProducerTemplate;
@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,10 +29,7 @@ public class MainControllerTest {
     @Autowired
     private WeatherService weatherService;
 
-    @MockBean
-    private ProducerTemplate template;
-
-
+    // Для срабатывания теста нужен работающий сервис Б.
     @Test
     public void wrongLang() throws Exception {
         MessageA message = WeatherServiceTest.createMessageAForTest(
@@ -43,19 +39,19 @@ public class MainControllerTest {
                         .createTestCoordinate("11", "10"));
 
         ResponseEntity<MessageB> entity = restTemplate.postForEntity("/weather", message, MessageB.class);
-        Assert.assertEquals(entity.getStatusCode(), HttpStatus.BAD_REQUEST);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
 
         message.setLang(Lang.ES);
         entity = restTemplate.postForEntity("/weather", message, MessageB.class);
-        Assert.assertEquals(entity.getStatusCode(), HttpStatus.BAD_REQUEST);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
 
-        Mockito.doReturn(new MessageB())
+        Mockito.doReturn(new ResponseEntity<>(new MessageB(), HttpStatus.OK))
                 .when(Mockito.mock(weatherService.getClass()))
                 .getWeather(Mockito.any(MessageA.class));
 
         message.setLang(Lang.RU);
         entity = restTemplate.postForEntity("/weather", message, MessageB.class);
-        Assert.assertEquals(entity.getStatusCode(), HttpStatus.OK);
+        Assert.assertEquals(HttpStatus.OK, entity.getStatusCode());
     }
 
     @Test
@@ -67,9 +63,10 @@ public class MainControllerTest {
                         .createTestCoordinate("11", "10"));
 
         ResponseEntity<MessageB> entity = restTemplate.postForEntity("/weather", messageA, MessageB.class);
-        Assert.assertEquals(entity.getStatusCode(), HttpStatus.BAD_REQUEST);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, entity.getStatusCode());
     }
 
+    // Для срабатывания теста нужен работающий сервис Б.
     @Test
     public void normalMessage() throws Exception {
         MessageA messageA = WeatherServiceTest.createMessageAForTest(
@@ -83,22 +80,22 @@ public class MainControllerTest {
         messageB.setDateTime(LocalDateTime.now());
         messageB.setTemperature(10);
 
-        ResponseEntity<MessageB> entity = restTemplate.postForEntity("/weather", messageA, MessageB.class);
-
         Mockito.doNothing()
-                .when(template)
+                .when(Mockito.mock(ProducerTemplate.class))
                 .sendBodyAndHeaders(Mockito.anyString(),
                         Mockito.anyString(),
                         Mockito.anyMap());
 
-        Mockito.doReturn(messageB)
+        Mockito.doReturn(new ResponseEntity<>(messageB, HttpStatus.OK))
                 .when(Mockito.mock(weatherService.getClass()))
                 .getWeather(messageA);
 
 
-        Assert.assertEquals(entity.getStatusCode(), HttpStatus.OK);
+        ResponseEntity<MessageB> entity = restTemplate.postForEntity("/weather", messageA, MessageB.class);
+
+        Assert.assertEquals(HttpStatus.OK, entity.getStatusCode());
         Assert.assertNotNull(entity.getBody());
-        Assert.assertEquals(entity.getBody().getMessage(), messageA.getMessage());
+        Assert.assertEquals(messageA.getMessage(), entity.getBody().getMessage());
     }
 
 }
