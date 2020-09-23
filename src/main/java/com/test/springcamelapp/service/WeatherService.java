@@ -28,8 +28,6 @@ public class WeatherService {
     }
 
     public ResponseEntity<MessageB> getWeather(MessageA messageA) throws JsonProcessingException {
-        strategy.setCoordinate(messageA.getCoordinate());
-
         CamelContext camel = new DefaultCamelContext();
         ProducerTemplate template = camel.createProducerTemplate();
 
@@ -49,7 +47,7 @@ public class WeatherService {
                         urlService + "receiveMessage",
                         new ObjectMapper().registerModule(new JavaTimeModule())
                                 .writeValueAsString(messageB),
-                        strategy.getMessage(template, camel).getHeaders());
+                        strategy.getMessage(template, camel, messageA.getCoordinate()).getHeaders());
 
 
         camel.stop();

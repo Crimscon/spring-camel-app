@@ -48,23 +48,6 @@ public class WeatherServiceTest {
     }
 
     @Test
-    public void getMessageB() throws JsonProcessingException {
-        messageA = createMessageAForTest("Hi!", Lang.RU, createTestCoordinate("55.21", "67.01"));
-
-        camel.start();
-
-        messageB = strategy.getMessageB(template, camel, messageA);
-
-        Mockito.verify(strategy, Mockito.times(1))
-                .getMessageB(
-                        Mockito.any(ProducerTemplate.class),
-                        Mockito.any(CamelContext.class),
-                        Mockito.any(MessageA.class));
-
-        camel.stop();
-    }
-
-    @Test
     public void createRequest() throws JsonProcessingException {
         camel.start();
 

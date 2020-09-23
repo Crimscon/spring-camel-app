@@ -34,23 +34,17 @@ public class OpenWeatherService implements AbstractService {
     @Value("${openWeather.format}")
     private String format;
 
-    private Coordinate coordinate;
-
-    public OpenWeatherService(Coordinate coordinate) {
-        this.coordinate = coordinate;
-    }
-
     @Override
-    public String getCompleteURL() {
+    public String getCompleteURL(Coordinate coordinate) {
         String formatUrl = getFormat();
-        return formatUrl.replace("{lat}", getCoordinate().getLat())
-                .replace("{lon}", getCoordinate().getLon())
+        return formatUrl.replace("{lat}", coordinate.getLat())
+                .replace("{lon}", coordinate.getLon())
                 .replace("{token}", getToken());
     }
 
     @Override
     public MessageB getMessageB(ProducerTemplate template, CamelContext camel, MessageA messageA) {
-        Message message = getMessage(template, camel);
+        Message message = getMessage(template, camel, messageA.getCoordinate());
         return createMessageB(message.getBody(String.class), messageA);
     }
 

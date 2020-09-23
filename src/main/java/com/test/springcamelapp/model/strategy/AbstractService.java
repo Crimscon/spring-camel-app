@@ -11,16 +11,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public interface AbstractService {
-    String getCompleteURL();
+    String getCompleteURL(Coordinate coordinate);
 
     String getName();
 
-    void setCoordinate(Coordinate coordinate);
-
     MessageB getMessageB(ProducerTemplate template, CamelContext camel, MessageA messageA) throws JsonProcessingException;
 
-    default Message getMessage(ProducerTemplate template, CamelContext camel) {
-        return template.request(getCompleteURL(), camel.getProcessor(getName())).getMessage();
+    default Message getMessage(ProducerTemplate template, CamelContext camel, Coordinate coordinate) {
+        return template.request(getCompleteURL(coordinate), camel.getProcessor(getName())).getMessage();
     }
 
 }
